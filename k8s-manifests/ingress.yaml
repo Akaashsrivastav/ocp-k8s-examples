@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: py-demo
+  namespace: akash-srivastav-dev
+spec:
+  rules:
+    - host: pyapp.apps.sandbox-m4.g2pi.p1.openshiftapps.com
+      http:
+        paths:
+          - path: /name2
+            pathType: Prefix
+            backend:
+              service:
+                name: py-demo
+                port:
+                  number: 5000

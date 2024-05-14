@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: py-demo-replica
+  labels:
+    app: py-demo-replica
+    tier: py-demo-replica
+spec:
+  # modify replicas according to your case
+  replicas: 2
+  selector:
+    matchLabels:
+      tier: py-demo-replica
+  template:
+    metadata:
+      labels:
+        tier: py-demo-replica
+    spec:
+      containers:
+      - name: py-demo-container
+        image: 'docker.io/akashsrivastav1122/demo_images:latest'

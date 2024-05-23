@@ -2,14 +2,14 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: py-demo
-  namespace: akash-srivastav-dev
+  namespace: learning-space
   labels:
     app: py-demo
     app.kubernetes.io/component: py-demo
     app.kubernetes.io/instance: py-demo
     app.kubernetes.io/name: py-demo
     app.kubernetes.io/part-of: zaga-demo-py-app
-    app.openshift.io/runtime-namespace: akash-srivastav-dev
+    app.openshift.io/runtime-namespace: learning-space
 spec:
   replicas: 2
   selector:
@@ -22,6 +22,7 @@ spec:
         app: py-demo
         deployment: py-demo
     spec:
+      serviceAccountName: nginx-serviceaccount
       containers:
         - name: py-demo
           image: 'docker.io/akashsrivastav1122/demo_images:latest'
@@ -41,7 +42,7 @@ spec:
 # apiVersion: apps/v1
 # kind: Deployment
 # metadata:
-#   namespace: akash-srivastav-dev
+#   namespace: learning-space
 #   name: py-demo1
 # spec:
 #   selector:

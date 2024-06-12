@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ReplicationController
 metadata:
   name: py-demo-replica
+  namespace: learning-space
   labels:
     app: py-demo-replica
     tier: py-demo-replica

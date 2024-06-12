@@ -1,0 +1,35 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: clean-package
+spec:
+  steps:
+    - name: clean
+      image: python:3.9
+      script: |
+        #!/bin/sh
+        rm -rf dist/
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  params:
+    - name: url
+      description: The URL of the Git repository to clone
+      type: string
+    - name: revision
+      description: The git revision to checkout (branch, tag, SHA)
+      type: string
+      default: "main"
+  steps:
+    - name: clone
+      image: alpine/git
+      script: |
+        #!/bin/sh
+        git clone $(params.url) source
+        cd source
+        git checkout $(params.revision)

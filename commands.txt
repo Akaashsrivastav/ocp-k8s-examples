@@ -1,0 +1,25 @@
+# delete target folder if present
+-- For java backend app 
+        mvn clean package
+        podman build -t quay.io/zagaos/infra-ingesstion-observai:java-cc0c7ce -f src/main/docker/Dockerfile.jvm .
+        podman push quay.io/zagaos/infra-ingesstion-observai:java-cc0c7ce
+
+-- git add . && git commit -m "Changed image tag in apm-dashboard-observai to edce75e" && git push
+-- git push --set-upstream origin helm-tasks (If we have new branch to push )
+
+-- podman login 
+   -- podman login quay.io
+      Username 
+      mukesh-zaga
+      Password 
+      6JtfyQD5aq9PB7g6DfY2drI495SZfrfPtXFP8oWyXklff74JNDDUDLrMFGeQEX0Y
+
+Commands for my learning
+echo <akash> | base64 -- for incripted anything(like-name,link etc)
+echo <YWthc2gK> | base64 -d  -- for decripted anything
+sudo vi /etc/hosts -- for adding hosts
+oc apply -k k8s-manifests/base/ --dry-run=client -o yaml -- for check customize file working properly 
+oc apply -k k8s-manifests/base/ --dry-run=client -o yaml -n observability-zaga -- for check customize file working properly using namespace(-n)
+oc project -- to seeing in which project/namespace,we are working
+oc project <namespace/projectname> -- to switching one project to another project
+

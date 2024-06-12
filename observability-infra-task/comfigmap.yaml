@@ -1,0 +1,9 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: infra-ingestion-dev
+  namespace: observability-zaga
+data:
+  KAFKA_TOPIC: kubelet_node_stats
+  KAFKA_URL: "infra-kafka-bootstrap.observability-kafka.svc.cluster.local:9092"
+  TRINO_URL: "trino.observability-datamesh.svc.cluster.local:8080"

@@ -1,0 +1,10 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: github-triggerbind
+spec:
+  params:
+    - name: GIT_URL
+      value: $(body.repository.url)
+    - name: GIT_HEADCOMMIT_ID
+      value: $(body.head_commit.id)

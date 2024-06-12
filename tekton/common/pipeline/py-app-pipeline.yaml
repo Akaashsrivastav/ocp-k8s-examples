@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: python-app-pipeline
+spec:
+  params:
+    - name: git-url
+      type: string
+    - name: git-revision
+      type: string
+      default: "main"
+    - name: github-token
+      type: string
+  tasks:
+    - name: clean-package
+      taskRef:
+        name: clean-package
+    - name: git-clone
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)

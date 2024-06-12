@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: infra-ingestion-dev
+  namespace: observability-zaga
+  labels:
+    app: infra-ingestion-dev
+    app.kubernetes.io/component: infra-ingestion-dev
+    app.kubernetes.io/instance: infra-ingestion-dev
+    app.kubernetes.io/name: infra-ingestion-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infra-ingestion-dev
+  template:
+    metadata:
+      labels:
+        app: infra-ingestion-dev
+        deployment: infra-ingestion-dev
+    spec:
+      containers:
+        - name: infra-ingestion-dev
+          image: 'quay.io/zagaos/infra-ingesstion-observai:java-cc0c7ce'
+        - env:
+            - name: KAFKA_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: infra-ingestion-dev
+                  key: KAFKA_TOPIC
+            - name: KAFKA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: infra-ingestion-dev
+                  key: KAFKA_URL
+            - name: TRINO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: infra-ingestion-dev
+                  key: TRINO_URL

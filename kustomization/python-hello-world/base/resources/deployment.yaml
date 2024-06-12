@@ -1,0 +1,69 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: py-demo
+  namespace: learning-space
+  labels:
+    app: py-demo
+    app.kubernetes.io/component: py-demo
+    app.kubernetes.io/instance: py-demo
+    app.kubernetes.io/name: py-demo
+    app.kubernetes.io/part-of: zaga-demo-py-app
+    app.openshift.io/runtime-namespace: learning-space
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: py-demo
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: py-demo
+        deployment: py-demo
+    spec:
+      serviceAccountName: nginx-serviceaccount
+      containers:
+        - name: py-demo
+          image: 'docker.io/akashsrivastav1122/demo_images:latest'
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          env:
+            - name: NAME2
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: name
+          resources: {}
+
+# --- 
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   namespace: learning-space
+#   name: py-demo1
+# spec:
+#   selector:
+#     matchLabels:
+#       app: pyapp-hello
+#   replicas: 3
+#   template:
+#     metadata:
+#       labels:
+#         app: pyapp-hello
+#     spec:
+#       containers:
+#         - name: container-1
+#           env: 
+#             - name: NAME2
+#               valueFrom:
+#                  secretKeyRef:
+#                     name: app-secret
+#                     key: name
+#           image: >-
+#             docker.io/akashsrivastav1122/demo_images:latest
+#           ports:
+#             - containerPort: 5000
+#               protocol: TCP

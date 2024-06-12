@@ -110,6 +110,65 @@ NOte: Openshift environment is used for these examples
      * To see all run pipeline -
       - oc get pipelinerun -A
 
+### Tekton Triggers
+     Tekton Triggers is a Tekton component that allows you to detect and extract information from events from a variety of sources and autocratically instantiate and execute TaskRuns and PipelineRuns based on that information.
+
+    * EventListener - listens for events at a specified port on your Kubernetes cluster.
+    * Trigger - specifies what happens when the EventListener detects an event.
+    * TriggerTemplate - specifies a blueprint for the resource, such as a TaskRun or PipelineRun when your EventListener detects an event.
+
+### ArgoCD
+    Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes.which continuously monitors running applications and compares the current, live state against the desired target state (as specified in the Git repo). 
+#### ArgoProject
+    Projects provide a logical grouping of applications, which is useful when Argo CD is used by multiple teams. Projects provide the following features:-
+    restrict what may be deployed (trusted Git source repositories)
+    restrict where apps may be deployed to (destination clusters and namespaces)
+    restrict what kinds of objects may or may not be deployed (e.g. RBAC, CRDs, DaemonSets, NetworkPolicy etc...)
+    defining project roles to provide application RBAC (bound to OIDC groups and/or JWT tokens)
+
+    * argocd proj create myproject -d https://kubernetes.default.svc,mynamespace -s https://github.com/       argoproj/argocd-example-apps.git ----- For creating project
+
+    * argocd app set guestbook-default --project myproject ----- For assigning app to a project
+
+#### ArgoCD Sync Policy
+    This policy defines how and when ArgoCD should apply changes from the repository to the Kubernetes cluster. Essentially, it’s a set of rules and behaviors that control the update process of your applications, ensuring that your live applications reflect the desired state defined in your Git repository.
+
+####  Roles and permission management
+    The RBAC feature enables restriction of access to Argo CD resources. Argo CD does not have its own user management system and has only one built-in user admin. The admin user is a superuser and it has unrestricted access to the system. 
+
+    Argo CD has two pre-defined roles but RBAC configuration allows defining roles and groups (see below).
+    role:readonly - read-only access to all resources
+    role:admin - unrestricted access to all resources
+
+
+### Docker args, environment variable
+    ARG is only available during the build of a Docker image (RUN etc), not after the image is created and containers are started from it (ENTRYPOINT, CMD). You can use ARG values to set ENV values to work around that.
+    ENV values are available to containers, but also to the commands of your Dockerfile which run during an image build, starting with the line where they are introduced.
+
+  
+### Helm
+    - Helm is a tool that automates the creation, packaging, configuration, and deployment of Kubernetes applications by combining your       configuration files into a single reusable package.
+    - Helm is a handy tool that maintains a single deployment YAML file with version information. This file lets you set up and manage a complex Kubernetes cluster with a few commands.
+    
+#### Helm charts
+    A Helm chart is a package that contains all the necessary resources to deploy an application to a Kubernetes cluster. This includes YAML configuration files for deployments, services, secrets, and config maps that define the desired state of your application.
+
+    - Configs
+          The config contains application configurations that you usually store in a YAML file. Resources in the Kubernetes cluster are deployed based on these values.
+    -Releases
+          A running instance of a chart is known as a release. When you run the helm install command, it pulls the config and chart files and deploys all the Kubernetes resources.
+
+#### Helm Commands
+    * helm repo  -- To interact with chart repository 
+    * helm repo list  -- To see all the repos
+    * helm repo add <name> <url>  -- For add repo
+    * helm repo remove <Name>   -- For removing repo
+    * helm search  -- For finding chart (For example- helm search repo <chart>)
+    * helm show  -- Information about chart (For example- helm show <value|chart|readme|all|> <chartName>)
+    * helm install -- For install package (For example- helm install <ReleaseName> <chartName>)
+        -- Wait until all subjects are ready (For example- helm install mychart stable tomcat --wait --timeout 10s)
+    * helm create -- For creating a new chart with given name (For example- helm create helloworld)
+    * helm delete -- For deleting a new chart with given name (For example- helm create helloworld)
 
 
 
@@ -119,17 +178,3 @@ NOte: Openshift environment is used for these examples
 
 
 
-
-
-
-
-
-
-### Commands for my learning
-echo <akash> | base64 -- for incripted anything(like-name,link etc)
-echo <YWthc2gK> | base64 -d  -- for decripted anything
-sudo vi /etc/hosts -- for adding hosts
-oc apply -k k8s-manifests/base/ --dry-run=client -o yaml -- for check customize file working properly 
-oc apply -k k8s-manifests/base/ --dry-run=client -o yaml -n observability-zaga -- for check customize file working properly using namespace(-n)
-oc project -- to seeing in which project/namespace,we are working
-oc project <namespace/projectname> -- to switching one project to another project

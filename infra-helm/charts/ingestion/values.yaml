@@ -1,0 +1,45 @@
+replicaCount: 1
+
+ingestion:
+  name: ingestion
+  container:
+    image: 'quay.io/zagaos/ingestion-observai'
+    resources:
+            requests:
+              cpu: 760m
+              memory: 1Gi
+            limits:
+              cpu: 800m
+              memory: 2Gi
+  env:
+            - name: KAFKA_TOPIC_NODE
+              valueFrom:
+                configMapKeyRef:
+                  name: ingestion-configs
+                  key: KAFKA_TOPIC_NODE
+            - name: KAFKA_TOPIC_POD
+              valueFrom:
+                configMapKeyRef:
+                  name: ingestion-configs
+                  key: KAFKA_TOPIC_POD
+            - name: KAFKA_TOPIC_EVENT
+              valueFrom:
+                configMapKeyRef:
+                  name: ingestion-configs
+                  key: KAFKA_TOPIC_EVENT
+            - name: KAFKA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ingestion-configs
+                  key: KAFKA_URL
+            - name: TRINO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ingestion-configs
+                  key: TRINO_URL
+  config:
+        KAFKA_TOPIC_NODE=nodestats
+        KAFKA_TOPIC_POD=podstats
+        KAFKA_TOPIC_EVENT=k8sevents
+        KAFKA_URL=infra-kafka-bootstrap.observability-kafka.svc.cluster.local:9092
+        TRINO_URL=jdbc:trino://trino-coordinator-dev.observability-datamesh.svc.cluster.local:8080?SSL=false

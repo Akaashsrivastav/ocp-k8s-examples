@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.ingestion.config.name }}
+  labels:
+    group: {{ .Values.ingestion.group }}
+data: 
+{{- range .Values.ingestion.config.data }}
+  {{ .key }}: {{ .value }}
+{{- end}}

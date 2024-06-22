@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.query.config.name }}
+  labels:
+    group: {{ .Values.query.group }}
+data: 
+{{- range .Values.query.config.data }}
+  {{ .key }}: {{ .value }}
+{{- end}}

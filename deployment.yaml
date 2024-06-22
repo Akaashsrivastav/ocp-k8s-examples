@@ -1,0 +1,262 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: order-srv-2
+  namespace: observability-testcases
+  labels:
+    app: order-srv-2
+    app.kubernetes.io/component: order-srv-2
+    app.kubernetes.io/instance: order-srv-2
+    app.kubernetes.io/name: order-srv-2
+    app.kubernetes.io/part-of: testcase-2
+    app.openshift.io/runtime: spring-boot
+    app.openshift.io/runtime-namespace: observability-testcases
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-srv-2
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: 'true'
+      labels:
+        app: order-srv-2
+        deployment: order-srv-2
+    spec:
+      containers:
+        - name: order-srv-2
+          image: 'quay.io/zagaos/order-vendor-sample:order-test-2'
+          ports:
+            - containerPort: 5089
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: order-srv-2
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: order-srv-2
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: order-srv-2
+                  key: POSTGRES_URL
+          resources:
+            limits:
+              cpu: 250m
+              memory: 750Mi
+            requests:
+              cpu: 230m
+              memory: 720Mi
+          imagePullPolicy: Always
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: zaga-image-secret
+
+--- 
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: order-srv-2
+  namespace: observability-testcases
+  labels:
+    app: order-srv-2
+    app.kubernetes.io/component: order-srv-2
+    app.kubernetes.io/instance: order-srv-2
+    app.kubernetes.io/name: order-srv-2
+    app.kubernetes.io/part-of: testcase-2
+    app.openshift.io/runtime-version: latest
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: 5089-tcp
+      protocol: TCP
+      port: 5089
+      targetPort: 5089
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: order-srv-2
+    deployment: order-srv-2
+
+---
+
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: order-srv-2
+  namespace: observability-testcases
+  labels:
+    app: order-srv-2
+    app.kubernetes.io/component: order-srv-2
+    app.kubernetes.io/instance: order-srv-2
+    app.kubernetes.io/name: order-srv-2
+    app.kubernetes.io/part-of: testcase-2
+    app.openshift.io/runtime-version: latest
+spec:
+  to:
+    kind: Service
+    name: order-srv-2
+    weight: 100
+  port:
+    targetPort: 5089-tcp
+  wildcardPolicy: None
+
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: order-srv-2
+  namespace: observability-testcases
+data:
+  POSTGRES_PASSWORD: observability123
+  POSTGRES_URL: 'jdbc:postgresql://postgres-testcase-apps.observability-testcases.svc.cluster.local:5432/observabilitydemo'
+  POSTGRES_USER: observabilitydemouser
+
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: vendor-srv-2
+  namespace: observability-testcases
+  labels:
+    app: vendor-srv-2
+    app.kubernetes.io/component: vendor-srv-2
+    app.kubernetes.io/instance: vendor-srv-2
+    app.kubernetes.io/name: vendor-srv-2
+    app.kubernetes.io/part-of: testcase-2
+    app.openshift.io/runtime: spring-boot
+    app.openshift.io/runtime-namespace: observai-main
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vendor-srv-2
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: 'true'
+      labels:
+        app: vendor-srv-2
+        deployment: vendor-srv-2
+    spec:
+      containers:
+        - name: vendor-srv-2
+          image: 'quay.io/zagaos/order-vendor-sample:vendor-test-2'
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: vendor-srv-2
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: vendor-srv-2
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: vendor-srv-2
+                  key: POSTGRES_URL
+            - name: APP_APIURL
+              valueFrom:
+                configMapKeyRef:
+                  name: vendor-srv-2
+                  key: APP_APIURL
+          resources:
+            limits:
+              cpu: 220m
+              memory: 350Mi
+            requests:
+              cpu: 200m
+              memory: 300Mi
+          imagePullPolicy: Always
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: zaga-image-secret
+  
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: vendor-srv-2
+  namespace: observability-testcases
+  labels:
+    app: vendor-srv-2
+    app.kubernetes.io/component: vendor-srv-2
+    app.kubernetes.io/instance: vendor-srv-2
+    app.kubernetes.io/name: vendor-srv-2
+    app.kubernetes.io/part-of: testcase-2
+    app.openshift.io/runtime-version: latest
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: 8080-tcp
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: vendor-srv-2
+    deployment: vendor-srv-2
+status:
+  loadBalancer: {}
+
+---
+
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: vendor-srv-2
+  namespace: observability-testcases
+  labels:
+    app: vendor-srv-2
+    app.kubernetes.io/component: vendor-srv-2
+    app.kubernetes.io/instance: vendor-srv-2
+    app.kubernetes.io/name: vendor-srv-2
+    app.kubernetes.io/part-of: testcase-2
+    app.openshift.io/runtime-version: latest
+spec:
+  to:
+    kind: Service
+    name: vendor-srv-2
+    weight: 100
+  port:
+    targetPort: 8080-tcp
+  wildcardPolicy: None
+
+
+---
+
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: vendor-srv-2
+  namespace: observability-testcases
+data:
+  APP_APIURL: 'http://order-srv-2.observability-testcases.svc.cluster.local:5089/orders/getOrders'
+  POSTGRES_PASSWORD: observability123
+  POSTGRES_URL: 'jdbc:postgresql://postgres-testcase-apps.observability-testcases.svc.cluster.local:5432/observabilitydemo'
+  POSTGRES_USER: observabilitydemouser

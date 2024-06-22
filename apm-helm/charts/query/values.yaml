@@ -1,0 +1,49 @@
+replicaCount: 1
+
+query:
+  name: query
+  containers:
+        - name: query
+          image: 'quay.io/zagaos/query-observai'
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 460m
+              memory: 550Mi
+            limits:
+              cpu: 500m
+              memory: 600Mi
+
+  Service:
+     protocol: TCP
+     port: 8000
+     ServiceType: ClusterIP
+
+  env:
+            - name: TRINO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: query-configs
+                  key: TRINO_HOST
+            - name: TRINO_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: query-configs
+                  key: TRINO_PORT
+            - name: TRINO_USER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: query-configs
+                  key: TRINO_USER_ID
+
+  Route:
+      weight: 100
+      targetPort: 9091-tcp
+      termination: edge
+      wildcardPolicy: None
+
+  ConfigMap:
+       TRINO_URL=jdbc:trino://trino-coordinator-dev.observability-datamesh.svc.cluster.local:8080?SSL=false
+      

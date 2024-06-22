@@ -1,0 +1,28 @@
+replicaCount: 1
+
+dashboard:
+  name: dashboard
+  containers:
+        - name: dashboard
+          image: 'quay.io/zagaos/dashboard-observai'
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 460m
+              memory: 550Mi
+            limits:
+              cpu: 500m
+              memory: 600Mi
+
+  Service:
+    protocol: TCP
+    port: 8000
+    ServiceType: ClusterIP
+
+  Route:
+      weight: 100
+      targetPort: 8080-tcp
+      termination: edge
+      wildcardPolicy: None

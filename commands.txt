@@ -22,4 +22,4 @@ oc apply -k k8s-manifests/base/ --dry-run=client -o yaml -- for check customize 
 oc apply -k k8s-manifests/base/ --dry-run=client -o yaml -n observability-zaga -- for check customize file working properly using namespace(-n)
 oc project -- to seeing in which project/namespace,we are working
 oc project <namespace/projectname> -- to switching one project to another project
-
+sudo firewall-cmd --add-port=<>/tcp --permanent && sudo firewall-cmd --reload  -- for linking port to our local host port

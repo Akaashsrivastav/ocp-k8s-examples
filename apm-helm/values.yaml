@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: my-apm-image
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths: []
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

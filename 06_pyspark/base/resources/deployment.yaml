@@ -1,0 +1,59 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: pyspark-standalone
+  namespace: observability-datamesh
+  labels:
+    app: pyspark-standalone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyspark-standalone
+  template:
+    metadata:
+      labels:
+        app: pyspark-standalone
+        deployment: pyspark-standalone
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: spark-config
+          configMap:
+            name: spark-default-config
+            defaultMode: 420
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: spark-iceberg
+      containers:
+        - resources: {}
+          terminationMessagePath: /dev/termination-log
+          name: pyspark-standalone
+          ports:
+            - containerPort: 4040
+              protocol: TCP
+            - containerPort: 4041
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: data
+              mountPath: /.local
+            - name: data
+              mountPath: /.jupyter
+            - name: workspace
+              mountPath: /workspace
+            - name: workspace
+              mountPath: /.ssh
+            - name: workspace
+              mountPath: /workspace/examples/spark-iceberg.ipynb
+              subPath: spark-iceberg.ipynb
+            - name: spark-config
+              mountPath: /opt/spark/conf
+          terminationMessagePolicy: File
+          image: 'quay.io/zagaos/pyspark-standalone:1.2'
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: zaga-image-secret
+  strategy:
+    type: Recreate

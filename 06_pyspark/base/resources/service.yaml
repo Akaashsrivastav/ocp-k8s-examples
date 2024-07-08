@@ -1,0 +1,23 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: pyspark-standalone
+  namespace: observability-datamesh
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: 4040-tcp
+      protocol: TCP
+      port: 4040
+      targetPort: 4040
+    - name: 4041-tcp
+      protocol: TCP
+      port: 4041
+      targetPort: 4041
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: pyspark-standalone

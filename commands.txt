@@ -23,3 +23,8 @@ oc apply -k k8s-manifests/base/ --dry-run=client -o yaml -n observability-zaga -
 oc project -- to seeing in which project/namespace,we are working
 oc project <namespace/projectname> -- to switching one project to another project
 sudo firewall-cmd --add-port=<>/tcp --permanent && sudo firewall-cmd --reload  -- for linking port to our local host port
+
+### Deplooying anything in observability commands--
+    podman build -t quay.io/zagaos/portal-ui-observai:c81080c .
+    podman push quay.io/zagaos/portal-ui-observai:c81080c
+    git add . && git commit -m "Changed image tag in apm-dashboard-observai to edce75e" && git push

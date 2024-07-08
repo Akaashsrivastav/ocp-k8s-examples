@@ -1,0 +1,196 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: pyspark-standalone
+  namespace: observability-datamesh
+  labels:
+    app: pyspark-standalone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyspark-standalone
+  template:
+    metadata:
+      labels:
+        app: pyspark-standalone
+        deployment: pyspark-standalone
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: spark-config
+          configMap:
+            name: spark-default-config
+            defaultMode: 420
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: spark-iceberg
+      containers:
+        - resources: {}
+          terminationMessagePath: /dev/termination-log
+          name: pyspark-standalone
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: minioAdmin
+            - name: AWS_SECRET_ACCESS_KEY
+              value: minio1234
+            - name: AWS_REGION
+              value: us-east-1
+            - name: DISABLE_CERT_CHECKING_SYSTEM_PROPERTY
+              value: 'true'
+          ports:
+            - containerPort: 4040
+              protocol: TCP
+            - containerPort: 4041
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: data
+              mountPath: /.local
+            - name: data
+              mountPath: /.jupyter
+            - name: workspace
+              mountPath: /workspace
+            - name: workspace
+              mountPath: /.ssh
+            - name: workspace
+              mountPath: /workspace/examples/spark-iceberg.ipynb
+              subPath: spark-iceberg.ipynb
+            - name: spark-config
+              mountPath: /opt/spark/conf
+          terminationMessagePolicy: File
+          image: 'quay.io/zagaos/pyspark-standalone:1.2'
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: zaga-image-secret
+  strategy:
+    type: Recreate
+
+--- 
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: spark-iceberg
+  namespace: observability-datamesh
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ocs-storagecluster-cephfs
+  volumeMode: Filesystem
+
+--- 
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: pyspark-standalone
+  namespace: observability-datamesh
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: 4040-tcp
+      protocol: TCP
+      port: 4040
+      targetPort: 4040
+    - name: 4041-tcp
+      protocol: TCP
+      port: 4041
+      targetPort: 4041
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: pyspark-standalone
+
+--- 
+
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: pyspark-standalone
+  namespace: observability-datamesh
+spec:
+  to:
+    kind: Service
+    name: pyspark-standalone
+    weight: 100
+  port:
+    targetPort: 4041-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None
+
+--- 
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: spark-default-config
+  namespace: observability-datamesh
+data:
+  spark-defaults.conf: >-
+    spark.executor.memory 2g
+
+    spark.driver.memory 2g
+
+    spark.executor.cores 2
+
+    spark.jars /opt/spark/jars/iceberg-spark-runtime-3.5_2.12-1.5.1.jar,
+    /opt/spark/jars/iceberg-aws-bundle-1.5.1.jar
+
+    spark.sql.shuffle.partitions 40
+
+    spark.driver.port 10027
+
+    spark.sql.catalog.apm org.apache.iceberg.spark.SparkCatalog
+
+    iceberg.engine.hive.enabled true
+
+    spark.sql.defaultCatalog apm
+
+    spark.sql.catalog.apm.type hive
+
+    spark.sql.catalog.apm.uri thrift://hive-metastore-dev:9083
+
+    spark.hadoop.hive.metastore.schema.verification false
+
+    spark.hadoop.hive.metastore.schema.verification.record.version false
+
+    spark.sql.catalog.apm.io-impl org.apache.iceberg.aws.s3.S3FileIO
+
+    spark.sql.catalog.apm.warehouse s3a://datamesh/observability/
+
+    spark.sql.catalog.apm.s3.endpoint
+    https://minio-api-dev.apps.zagaopenshift.zagaopensource.com
+
+    spark.sql.extensions
+    org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+
+    spark.sql.catalog.apm.s3.path-style-access true
+
+    spark.eventLog.enabled true
+
+    spark.eventLog.dir s3a://spark-events/logs/
+
+    spark.history.fs.logDirectory s3a://spark-events/logs/
+
+    spark.hadoop.fs.s3a.endpoint
+    https://minio-api-dev.apps.zagaopenshift.zagaopensource.com
+
+    spark.hadoop.fs.s3a.secret.key minio1234
+
+    spark.hadoop.fs.s3a.access.key minioAdmin
+
+    spark.hadoop.fs.s3a.path.style.access true
+
+    spark.hadoop.fs.s3a.impl org.apache.hadoop.fs.s3a.S3AFileSystem
+
+    spark.sql.storeAssignmentPolicy ANSI

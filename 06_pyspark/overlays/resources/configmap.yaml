@@ -1,0 +1,64 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: spark-default-config
+  namespace: observability-datamesh
+data:
+  spark-defaults.conf: >-
+    spark.executor.memory 2g
+
+    spark.driver.memory 2g
+
+    spark.executor.cores 2
+
+    spark.jars /opt/spark/jars/iceberg-spark-runtime-3.5_2.12-1.5.1.jar,
+    /opt/spark/jars/iceberg-aws-bundle-1.5.1.jar
+
+    spark.sql.shuffle.partitions 40
+
+    spark.driver.port 10027
+
+    spark.sql.catalog.apm org.apache.iceberg.spark.SparkCatalog
+
+    iceberg.engine.hive.enabled true
+
+    spark.sql.defaultCatalog apm
+
+    spark.sql.catalog.apm.type hive
+
+    spark.sql.catalog.apm.uri thrift://hive-metastore-dev:9083
+
+    spark.hadoop.hive.metastore.schema.verification false
+
+    spark.hadoop.hive.metastore.schema.verification.record.version false
+
+    spark.sql.catalog.apm.io-impl org.apache.iceberg.aws.s3.S3FileIO
+
+    spark.sql.catalog.apm.warehouse s3a://datamesh/observability/
+
+    spark.sql.catalog.apm.s3.endpoint
+    https://minio-api-dev.apps.zagaopenshift.zagaopensource.com
+
+    spark.sql.extensions
+    org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+
+    spark.sql.catalog.apm.s3.path-style-access true
+
+    spark.eventLog.enabled true
+
+    spark.eventLog.dir s3a://spark-events/logs/
+
+    spark.history.fs.logDirectory s3a://spark-events/logs/
+
+    spark.hadoop.fs.s3a.endpoint
+    https://minio-api-dev.apps.zagaopenshift.zagaopensource.com
+
+    spark.hadoop.fs.s3a.secret.key minio1234
+
+    spark.hadoop.fs.s3a.access.key minioAdmin
+
+    spark.hadoop.fs.s3a.path.style.access true
+
+    spark.hadoop.fs.s3a.impl org.apache.hadoop.fs.s3a.S3AFileSystem
+
+    spark.sql.storeAssignmentPolicy ANSI

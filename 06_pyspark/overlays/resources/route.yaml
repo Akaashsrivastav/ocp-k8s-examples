@@ -1,0 +1,16 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: pyspark-standalone
+  namespace: observability-datamesh
+spec:
+  to:
+    kind: Service
+    name: pyspark-standalone
+    weight: 100
+  port:
+    targetPort: 4041-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None

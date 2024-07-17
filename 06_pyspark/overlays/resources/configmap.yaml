@@ -45,6 +45,7 @@ data:
     spark.sql.catalog.apm.s3.path-style-access true
 
     spark.eventLog.enabled true
+     
 
     spark.eventLog.dir s3a://spark-events/logs/
 
